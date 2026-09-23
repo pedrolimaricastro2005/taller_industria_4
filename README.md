@@ -12,9 +12,11 @@ Instancia D - Industria 4.0
 
 Este repositorio contiene el desarrollo del Taller 1 de Investigación de Operaciones.
 
-El problema corresponde a una asignación entre órdenes y celdas robotizadas, formulada inicialmente como una red bipartita de flujo a costo mínimo.
+El problema corresponde a una asignación entre órdenes y celdas robotizadas, formulada
+inicialmente como una red bipartita de flujo a costo mínimo.
 
-Posteriormente se incorpora una restricción operacional adicional asociada a un brazo de carga compartido por las celdas C1 y C2, analizando su efecto sobre la integralidad de la solución.
+Posteriormente se incorpora una restricción operacional adicional asociada a un brazo de carga
+compartido por las celdas C1 y C2, analizando su efecto sobre la integralidad de la solución.
 
 ## Estructura del repositorio
 
@@ -23,35 +25,51 @@ Posteriormente se incorpora una restricción operacional adicional asociada a un
   - restriccion_adicional.csv
 
 - resultados/
-  - solucion.csv
-  - duales.csv
+  - solucion.csv / duales.csv — caso base (LP continuo, sin restricción adicional)
+  - solucion_con_tope.csv / duales_con_tope.csv — LP continuo con la restricción del brazo
+  - solucion_con_tope_binario.csv — modelo binario con la restricción del brazo (resultado final)
 
 - modelo.py
-  - Modelo final reproducible desarrollado en Python y Pyomo.
+  - Modelo reproducible en Pyomo. Un mismo script resuelve los tres escenarios del taller
+    según los parámetros con que se ejecute (ver sección Ejecución).
 
 - cuaderno.ipynb
-  - Desarrollo completo del taller, incluyendo formulación, resolución, verificación, integralidad, duales y análisis de sensibilidad.
+  - Desarrollo completo del taller: formulación, resolución de los tres escenarios,
+    verificación de conservación de flujo, integralidad (submatrices de la matriz de
+    incidencia), valores duales, análisis de sensibilidad y verificación independiente por
+    enumeración exhaustiva.
 
 ## Metodología
 
 1. Formulación del problema como red de flujo a costo mínimo.
-2. Resolución del modelo lineal con variables continuas.
+2. Resolución del modelo lineal con variables continuas (caso base).
 3. Verificación de la integralidad de la solución base.
 4. Análisis de la matriz de incidencia y total unimodularidad.
-5. Incorporación de la restricción adicional del brazo compartido.
+5. Incorporación de la restricción adicional del brazo compartido (LP continuo).
 6. Comparación entre relajación lineal y modelo binario.
-7. Verificación independiente mediante enumeración exhaustiva.
+7. Verificación independiente mediante enumeración exhaustiva (720 asignaciones).
 8. Análisis de valores duales y sensibilidad.
 
-## Resultado principal
+## Resultados
 
-El modelo binario con la restricción adicional obtiene un tiempo óptimo total de 239 minutos.
+| Escenario | Óptimo | Notas |
+|---|---|---|
+| Base (sin restricción adicional) | 236 min | Sale 0-1 sin imponer integralidad |
+| Con restricción del brazo (LP continuo) | 238 min | 6 variables fraccionarias |
+| Con restricción del brazo (binario) | 239 min | Resultado operacionalmente válido; brecha de 1 min (0.42%) respecto del LP |
 
 ## Ejecución
 
-Desde la carpeta principal del proyecto ejecutar:
+Desde la carpeta principal del proyecto:
 
-python modelo.py
+```
+python modelo.py                     # caso base: 236 min
+python modelo.py --con-tope          # LP con restricción adicional: 238 min
+python modelo.py --con-tope --entero # binario con restricción adicional: 239 min
+```
+
+Cada ejecución imprime la condición de término, el valor óptimo y la asignación, y escribe los
+archivos correspondientes en resultados/.
 
 ## Software utilizado
 
@@ -59,8 +77,9 @@ python modelo.py
 - Pyomo
 - HiGHS
 - pandas
-- Google Colab
+- Google Colab (desarrollo) / entorno local (verificación de modelo.py)
 
 ## Reproducibilidad
 
-Los parámetros numéricos del problema se leen desde los archivos CSV contenidos en la carpeta datos/. De esta forma, los datos se mantienen separados del código del modelo.
+Los parámetros numéricos del problema se leen desde los archivos CSV contenidos en la carpeta
+datos/. Ningún valor está escrito dentro de modelo.py.
